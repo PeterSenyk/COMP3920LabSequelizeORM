@@ -7,7 +7,12 @@ const dbConfigLocal = {
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_NAME,
 	multipleStatements: false,
-	namedPlaceholders: true
+	namedPlaceholders: true,
+	waitForConnections: true,
+	connectionLimit: 10,
+	queueLimit: 0,
+	connectTimeout: 10000, // 10 seconds
+	ssl: { rejectUnauthorized: false } // Required for Aiven SSL connections
 };
 
 var database = mysql.createPool(dbConfigLocal);
