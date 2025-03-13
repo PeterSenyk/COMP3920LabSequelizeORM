@@ -1,4 +1,4 @@
-//Define the include function for absolute file name
+
 global.base_dir = __dirname;
 global.abs_path = function(path) {
 	return base_dir + path;
@@ -8,30 +8,27 @@ global.include = function(file) {
 }
 
 const express = require('express');
-const database = include('databaseConnection');
-const router = include('routes/router');
+const database = require('./databaseConnectionSequelize');
+const router = require('./routes/router');
 
 const port = process.env.PORT || 3000;
 
 async function printMySQLVersion() {
-	let sqlQuery = `
-		SHOW VARIABLES LIKE 'version';
-	`;
-	
 	try {
-		const results = await database.query(sqlQuery);
-		console.log("Successfully connected to MySQL");
-		console.log(results[0]);
-		return true;
-	}
-	catch(err) {
-		console.log("Error getting version from MySQL");
-		console.log(err);
-		return false;
+		await database.authenticate(); // Ensure the connection is working
+		console.log("✅ Successfully connected to MySQL");
+
+		const [results] = await database.query("SHOW VARIABLES LIKE 'version';");
+		console.log(results);
+	} catch (err) {
+		console.error("❌ Error getting version from MySQL");
+		console.error(err);
 	}
 }
 
-const success = printMySQLVersion();
+printMySQLVersion();
+
+// const success = printMySQLVersion();
 
 
 const app = express();
@@ -43,7 +40,5 @@ app.use(express.static(__dirname + "/public"));
 
 app.listen(port, () => {
 	console.log("Node application listening on port "+port);
+
 }); 
-
-
-

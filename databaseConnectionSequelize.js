@@ -1,12 +1,14 @@
 require('dotenv').config();
+const { Sequelize } = require('sequelize');
 
-if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_HOST || !process.env.DB_NAME) {
-    console.error("⚠️ Missing database environment variables! Check your .env file.");
-    process.exit(1); // Stop execution if variables are missing
-}
+const sequelize = new Sequelize({
+    database: process.env.DB_NAME,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'mysql',
+    logging: console.log,
+});
 
-const dbConfigLocal = `mysql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?timezone=Z`;
-
-console.log("✅ Database connection string loaded:", dbConfigLocal); // Debugging
-
-module.exports = dbConfigLocal;
+module.exports = sequelize;
