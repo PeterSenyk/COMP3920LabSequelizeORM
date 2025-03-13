@@ -2,7 +2,7 @@ const router = require('express').Router();
 // const database = include('databaseConnection');
 // const dbModel = include('databaseAccessLayer');
 //const dbModel = include('staticData');
-const userModel = require('models/web_user');
+const userModel = require('../models/web_user');
 const bcrypt = require('bcrypt');
 
 
