@@ -132,5 +132,23 @@ router.post('/addUser', async (req, res) => {
 	}
 });
 
+const PetModel = require('../models/pet');
+
+// Route to get all pets
+router.get('/pets', async (req, res) => {
+	console.log("Fetching all pets...");
+
+	try {
+		const pets = await PetModel.findAll({
+			attributes: ['name']
+		});
+
+		console.log("Pets retrieved:", pets);
+		res.render('pets', { allPets: pets });
+	} catch (err) {
+		console.error("Error fetching pets:", err);
+		res.render('error', { message: "Error retrieving pets from database." });
+	}
+});
 
 module.exports = router;
