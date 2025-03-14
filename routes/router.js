@@ -1,148 +1,81 @@
 const router = require('express').Router();
-// const database = include('databaseConnection');
-// const dbModel = include('databaseAccessLayer');
-//const dbModel = include('staticData');
 const userModel = require('../models/web_user');
+const PetModel = require('../models/pet');
 const bcrypt = require('bcrypt');
-
-
-// router.get('/', async (req, res) => {
-// 	console.log("page hit");
-//
-// 	try {
-// 		const result = await dbModel.getAllUsers();
-// 		res.render('index', {allUsers: result});
-//
-// 		//Output the results of the query to the Heroku Logs
-// 		console.log(result);
-// 	}
-// 	catch (err) {
-// 		res.render('error', {message: 'Error reading from MySQL'});
-// 		console.log("Error reading from mysql");
-// 	}
-// });
 
 router.get('/', async (req, res) => {
 	console.log("page hit");
 	try {
-		const users = await userModel.findAll({attributes: ['web_user_id','first_name','last_name','email']}); //{where: {web_user_id: 1}}
-		if (users === null) {
+		const users = await userModel.findAll({attributes: ['web_user_id','first_name','last_name','email']});
+		if (!users) {
 			res.render('error', {message: 'Error connecting to MySQL'});
 			console.log("Error connecting to userModel");
-		}
-		else {
-			console.log(users);
+		} else {
+			// console.log(users);
 			res.render('index', {allUsers: users});
 		}
-	}
-	catch(ex) {
+	} catch(ex) {
 		res.render('error', {message: 'Error connecting to MySQL'});
-		console.log("Error connecting to MySQL");
-		console.log(ex);
+		console.log("Error connecting to MySQL:", ex);
 	}
 });
 
-
-router.post('/addUser', async (req, res) => {
-    console.log("form submit");
-    console.log(req.body);
-	
-	try {
-		const success = await dbModel.addUser(req.body);
-		if (success) {
-			res.redirect("/");
-		}
-		else {
-			res.render('error', {message: "Error writing to MySQL"});
-			console.log("Error writing to MySQL");
-		}
-	}
-	catch (err) {
-		res.render('error', {message: "Error writing to MySQL"});
-		console.log("Error writing to MySQL");
-		console.log(err);
-	}
-});
-
-// router.get('/deleteUser', async (req, res) => {
-//     console.log("delete user");
-//
-// 	console.log(req.query);
-//
-// 	let userId = req.query.id;
-//
-// 	if (userId) {
-// 		const success = await dbModel.deleteUser(userId);
-// 		if (success) {
-// 			res.redirect("/");
-// 		}
-// 		else {
-// 			res.render('error', {message: 'Error writing to MySQL'});
-// 			console.log("Error writing to mysql");
-// 			console.log(err);
-// 		}
-// 	}
-// }
 
 router.get('/deleteUser', async (req, res) => {
 	try {
 		console.log("delete user");
-
 		let userId = req.query.id;
 		if (userId) {
 			console.log("userId: " + userId);
-
 			let deleteUser = await userModel.findByPk(userId);
-			console.log("deleteUser: ");
-			console.log(deleteUser);
-
+			console.log("deleteUser: ", deleteUser);
 			if (deleteUser !== null) {
 				await deleteUser.destroy();
 			}
 		}
-
 		res.redirect("/");
 	} catch (ex) {
 		res.render('error', { message: 'Error connecting to MySQL' });
-		console.log("Error connecting to MySQL");
-		console.log(ex);
+		console.log("Error connecting to MySQL:", ex);
 	}
 });
 
 
 router.post('/addUser', async (req, res) => {
 	try {
-		console.log("form submit");
+		console.log("Form submit received:", req.body);
 
+		// Validate required fields
+		if (!req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) {
+			console.log("Missing required fields");
+			res.render('error', { message: "All fields are required!" });
+			return;
+		}
+
+		// Hash the password before storing
 		const password_hash = await bcrypt.hash(req.body.password, 12);
 
-		let newUser = userModel.build({
+		// Insert user into the database
+		let newUser = await userModel.create({
 			first_name: req.body.first_name,
 			last_name: req.body.last_name,
 			email: req.body.email,
-			password_salt: password_hash
+			password_hash: password_hash
 		});
 
-		await newUser.save();
+		console.log("User added successfully:", newUser);
 		res.redirect("/");
 	} catch (ex) {
-		res.render('error', { message: 'Error connecting to MySQL' });
-		console.log("Error connecting to MySQL");
-		console.log(ex);
+		console.log("Error writing to MySQL:", ex);
+		res.render('error', { message: `Error writing to MySQL: ${ex.message}` });
 	}
 });
 
-const PetModel = require('../models/pet');
 
-// Route to get all pets
 router.get('/pets', async (req, res) => {
 	console.log("Fetching all pets...");
-
 	try {
-		const pets = await PetModel.findAll({
-			attributes: ['name']
-		});
-
+		const pets = await PetModel.findAll({ attributes: ['name'] });
 		console.log("Pets retrieved:", pets);
 		res.render('pets', { allPets: pets });
 	} catch (err) {
@@ -150,6 +83,7 @@ router.get('/pets', async (req, res) => {
 		res.render('error', { message: "Error retrieving pets from database." });
 	}
 });
+
 
 router.get('/showPets', async (req, res) => {
 	console.log("page hit");
@@ -166,20 +100,16 @@ router.get('/showPets', async (req, res) => {
 		let pets = await user.getPets();
 
 		if (pets.length === 0) {
-			console.log("User has no pets");
+			console.log("⚠User has no pets");
 			res.render('pets', { allPets: [], noPets: true }); // Send flag to EJS
 		} else {
-			console.log(pets);
+			console.log("Pets found:", pets);
 			res.render('pets', { allPets: pets, noPets: false });
 		}
-	}
-	catch (ex) {
+	} catch (ex) {
 		res.render('error', { message: 'Error connecting to MySQL' });
-		console.log("Error connecting to MySQL");
-		console.log(ex);
+		console.log("Error connecting to MySQL:", ex);
 	}
 });
-
-
 
 module.exports = router;

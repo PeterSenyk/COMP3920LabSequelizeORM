@@ -12,8 +12,8 @@ const dbConfigLocal = {
 	waitForConnections: true,
 	connectionLimit: 10,
 	queueLimit: 0,
-	connectTimeout: 10000, // 10 seconds
-	ssl: { rejectUnauthorized: false } // Required for Aiven SSL connections
+	connectTimeout: 10000,
+	ssl: { rejectUnauthorized: false }
 };
 
 var database = mysql.createPool(dbConfigLocal);

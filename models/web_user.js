@@ -1,18 +1,32 @@
-const {Sequelize, DataTypes} = require('sequelize');
-// const databaseConnectionString = include('/databaseConnectionSequelize');
-// const sequelize = new Sequelize(databaseConnectionString);
+const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../databaseConnectionSequelize');
 
-const userModel = sequelize.define('web_user',
-    {web_user_id: {type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true},
-    first_name: {type: Sequelize.STRING, allowNull: false},
-    last_name: {type: Sequelize.STRING, allowNull: false},
-    email: {type: Sequelize.STRING, allowNull: false},
-    password_hash: {type: Sequelize.STRING, allowNull: true}
+const userModel = sequelize.define('web_user', {
+    web_user_id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
-    {tableName: 'web_user',
-        timestamps: false,
-        singular: 'web_user',
-        plural: 'web_user'}
-);
+    first_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    last_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        // unique: true
+    },
+    password_hash: {
+        type: DataTypes.STRING,
+        allowNull: true
+    }
+}, {
+    tableName: 'web_user',
+    timestamps: false
+});
+
 module.exports = userModel;

@@ -15,19 +15,19 @@ const port = process.env.PORT || 3000;
 async function printMySQLVersion() {
 	try {
 		await database.authenticate(); // Ensure the connection is working
-		console.log("✅ Successfully connected to MySQL");
+		console.log("Successfully connected to MySQL");
 
 		const [results] = await database.query("SHOW VARIABLES LIKE 'version';");
 		console.log(results);
 	} catch (err) {
-		console.error("❌ Error getting version from MySQL");
+		console.error("Error getting version from MySQL");
 		console.error(err);
 	}
 }
 
-printMySQLVersion();
+// printMySQLVersion();
 
-// const success = printMySQLVersion();
+
 
 
 const app = express();

@@ -2,14 +2,16 @@ const database = include('/databaseConnection');
 const bcrypt = require('bcrypt');
 
 async function getAllUsers() {
-	let sqlQuery = `
+	let sqlQuery =
+		`
 		SELECT web_user_id, first_name, last_name, email
 		FROM web_user;
-	`;
+		`
+	;
 	
 	try {
 		const results = await database.query(sqlQuery);
-		console.log(results[0]);
+		// console.log(results[0]);
 		return results[0];
 	}
 	catch (err) {
@@ -31,7 +33,7 @@ async function addUser(postData) {
             email: postData.email,
 			password_hash: passwordHash
         };
-    console.log(sqlInsert);
+    // console.log(sqlInsert);
 	try {
 		const results = await database.query(sqlInsert, params);
 		console.log({results});
