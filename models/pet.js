@@ -1,8 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
-// const databaseConnectionString = require('/databaseConnectionSequelize'); // Ensure this is correct
-// const sequelize = new Sequelize(databaseConnectionString);
-const sequelize = require('../databaseConnectionSequelize');
-
+const sequelize = require('../databaseConnectionSequelize'); // Corrected import
+const UserModel = require('./web_user'); // Corrected import method
 
 const PetModel = sequelize.define('pet', {
     pet_id: {
@@ -14,7 +12,7 @@ const PetModel = sequelize.define('pet', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'web_user', // Table name
+            model: 'web_user', // Table name in DB
             key: 'web_user_id'
         }
     },
@@ -26,7 +24,7 @@ const PetModel = sequelize.define('pet', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'pet_type', // Table name
+            model: 'pet_type', // Table name in DB
             key: 'pet_type_id'
         }
     }
@@ -35,4 +33,8 @@ const PetModel = sequelize.define('pet', {
     timestamps: false
 });
 
-module.exports = PetModel;
+// Define relationships AFTER defining models
+PetModel.belongsTo(UserModel, { as: 'owner', foreignKey: 'web_user_id' });
+UserModel.hasMany(PetModel, { as: 'pets', foreignKey: 'web_user_id' });
+
+module.exports = PetModel; // Export AFTER defining relationships

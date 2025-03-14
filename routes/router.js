@@ -151,4 +151,35 @@ router.get('/pets', async (req, res) => {
 	}
 });
 
+router.get('/showPets', async (req, res) => {
+	console.log("page hit");
+	try {
+		let userId = req.query.id;
+		const user = await userModel.findByPk(userId);
+
+		if (!user) {
+			res.render('error', { message: 'User not found' });
+			console.log("Error: User not found");
+			return;
+		}
+
+		let pets = await user.getPets();
+
+		if (pets.length === 0) {
+			console.log("User has no pets");
+			res.render('pets', { allPets: [], noPets: true }); // Send flag to EJS
+		} else {
+			console.log(pets);
+			res.render('pets', { allPets: pets, noPets: false });
+		}
+	}
+	catch (ex) {
+		res.render('error', { message: 'Error connecting to MySQL' });
+		console.log("Error connecting to MySQL");
+		console.log(ex);
+	}
+});
+
+
+
 module.exports = router;
